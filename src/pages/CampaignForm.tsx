@@ -3,7 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { createCampaign, updateCampaign, getCampaignById } from "../services/campaignService";
 import { CampaignStatus } from "../mocks/campaigns";
 import prismLogo from "../assets/prism-logo.png";
-import ThemeToggle from "../components/ThemeToggle";
+import UserMenu from "../components/UserMenu";
+import SideMenu from "../components/SideMenu";
+import ImageUploader from "../components/ImageUploader";
+import { uploadImage } from "../services/bannerService";
 
 // Função auxiliar para gerar IDs únicos
 function generateId() {
@@ -449,11 +452,14 @@ export default function CampaignForm() {
               {isEditMode ? "Editar Campanha" : "Nova Campanha"}
             </h1>
           </div>
-          <ThemeToggle />
+          <UserMenu />
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[1fr_420px]">
+      <main className="mx-auto max-w-7xl px-6 py-6">
+        <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+          <SideMenu />
+          <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
         {/* COLUNA ESQUERDA */}
         <section className="space-y-6">
           {/* Card: informações básicas */}
@@ -779,6 +785,8 @@ export default function CampaignForm() {
             </pre>
           </div>
         </aside>
+          </div>
+        </div>
       </main>
     </div>
   );
@@ -994,6 +1002,23 @@ interface PushConfigFormProps {
 
 function PushConfigForm(props: PushConfigFormProps) {
   const { config } = props;
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleImageSelect(file: File) {
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const imageUrl = await uploadImage(file);
+      props.onUpdatePush({ imageUrl });
+    } catch (error) {
+      console.error("Erro ao fazer upload da imagem:", error);
+      setUploadError(error instanceof Error ? error.message : "Erro ao fazer upload da imagem");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -1027,23 +1052,36 @@ function PushConfigForm(props: PushConfigFormProps) {
         </div>
         <div className="sm:col-span-2">
           <label className="mb-1 block text-sm font-medium">Imagem (opcional)</label>
-          <input
-            value={config.imageUrl || ""}
-            onChange={(e) => props.onUpdatePush({ imageUrl: e.target.value })}
-            placeholder="https://..."
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-slate-200 focus:ring dark:border-slate-700 dark:bg-slate-900 dark:ring-slate-700 dark:text-slate-100"
+          <ImageUploader
+            onImageSelect={handleImageSelect}
+            currentImageUrl={config.imageUrl}
+            uploading={uploading}
           />
+          {uploadError && (
+            <div className="mt-2 rounded-lg border border-error-200 bg-error-50 px-3 py-2 text-sm text-error-700 dark:border-error-700 dark:bg-error-500/20 dark:text-error-200">
+              {uploadError}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Preview Push */}
-      <div className="rounded-xl border bg-slate-50 p-4">
-        <div className="mb-2 text-sm font-semibold">Preview do push:</div>
+      <div className="rounded-xl border bg-slate-50 p-4 dark:bg-slate-800 dark:border-slate-700">
+        <div className="mb-2 text-sm font-semibold dark:text-slate-200">Preview do push:</div>
+        {config.imageUrl && (
+          <div className="mb-3 overflow-hidden rounded-lg">
+            <img
+              src={config.imageUrl}
+              alt="Push notification preview"
+              className="h-40 w-full object-cover"
+            />
+          </div>
+        )}
         <div className="flex items-start gap-3">
-          <div className="h-10 w-10 shrink-0 rounded bg-slate-300" />
+          <div className="h-10 w-10 shrink-0 rounded bg-slate-300 dark:bg-slate-600" />
           <div>
-            <div className="text-sm font-semibold">{config.title || "(sem título)"}</div>
-            <div className="text-sm text-slate-700">{config.body || "(sem descrição)"}</div>
+            <div className="text-sm font-semibold dark:text-slate-200">{config.title || "(sem título)"}</div>
+            <div className="text-sm text-slate-700 dark:text-slate-300">{config.body || "(sem descrição)"}</div>
             <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">Deep link: {config.deepLink || "—"}</div>
           </div>
         </div>

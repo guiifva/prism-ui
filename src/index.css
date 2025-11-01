@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'TipoiFoodTextos-Medium';
+  src: url('/src/assets/font/WOFF2/TipoiFoodTextos-Medium.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
 @layer base {
   body {
     @apply bg-slate-50 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100;

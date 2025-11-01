@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { getCampaigns, deleteCampaign, toggleCampaignStatus } from "../services/campaignService";
 import { Campaign, CampaignStatus } from "../mocks/campaigns";
 import prismLogo from "../assets/prism-logo.png";
-import ThemeToggle from "../components/ThemeToggle";
+import UserMenu from "../components/UserMenu";
+import SideMenu from "../components/SideMenu";
 
 const STATUS_LABELS: Record<CampaignStatus, string> = {
   ACTIVE: "Ativa",
@@ -103,44 +104,43 @@ export default function CampaignList() {
             <div className="h-5 w-px bg-slate-300 dark:bg-slate-700"></div>
             <h1 className="text-lg font-semibold text-slate-600 dark:text-slate-300">Campanhas</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              onClick={() => navigate("/campaigns/new")}
-              className="rounded-xl bg-wine-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-wine-700 hover:shadow focus:outline-none focus:ring-2 focus:ring-wine-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
-            >
-              + Nova Campanha
-            </button>
-          </div>
+          <UserMenu />
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-6">
+        <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+          <SideMenu />
+          <section>
         {/* Filtros */}
         <div className="mb-6 grid gap-4 sm:grid-cols-2">
           {/* Busca */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label htmlFor="search-campaign" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
               Buscar por nome ou descrição
             </label>
             <input
+              id="search-campaign"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Digite para buscar..."
               className="w-full rounded-xl border border-slate-200 px-4 py-2 outline-none ring-slate-200 focus:ring dark:border-slate-700 dark:bg-slate-900 dark:ring-slate-700"
+              aria-label="Buscar campanhas por nome ou descrição"
             />
           </div>
 
           {/* Filtro por status */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label htmlFor="status-filter-campaign" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
               Filtrar por status
             </label>
             <select
+              id="status-filter-campaign"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as CampaignStatus | "ALL")}
               className="w-full rounded-xl border border-slate-200 px-4 py-2 outline-none ring-slate-200 focus:ring dark:border-slate-700 dark:bg-slate-900 dark:ring-slate-700 dark:text-slate-100"
+              aria-label="Filtrar campanhas por status"
             >
               <option value="ALL">Todos os status</option>
               <option value="ACTIVE">Ativa</option>
@@ -383,18 +383,21 @@ export default function CampaignList() {
                     <button
                       onClick={() => navigate(`/campaigns/${campaign.id}`)}
                       className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-all hover:bg-slate-50 hover:border-slate-400 hover:shadow-sm"
+                      aria-label={`Ver detalhes da campanha ${campaign.name}`}
                     >
                       Ver detalhes
                     </button>
                     <button
                       onClick={() => navigate(`/campaigns/${campaign.id}/edit`)}
                       className="rounded-lg border border-primary-300 bg-primary-50 px-3 py-1.5 text-xs font-medium text-primary-800 transition-all hover:bg-primary-100 hover:border-primary-400 hover:shadow-sm"
+                      aria-label={`Editar campanha ${campaign.name}`}
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => setDeleteConfirmId(campaign.id)}
                       className="rounded-lg bg-wine-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-wine-700 focus:outline-none focus:ring-2 focus:ring-wine-500 focus:ring-offset-1"
+                      aria-label={`Excluir campanha ${campaign.name}`}
                     >
                       Excluir
                     </button>
@@ -404,6 +407,8 @@ export default function CampaignList() {
             ))}
           </div>
         )}
+          </section>
+        </div>
       </main>
 
       {/* Modal de confirmação de exclusão */}

@@ -3,7 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCampaignById } from "../services/campaignService";
 import { Campaign, CampaignStatus } from "../mocks/campaigns";
 import prismLogo from "../assets/prism-logo.png";
-import ThemeToggle from "../components/ThemeToggle";
+import UserMenu from "../components/UserMenu";
+import SideMenu from "../components/SideMenu";
+import { useToast } from "../contexts/ToastContext";
 
 const STATUS_LABELS: Record<CampaignStatus, string> = {
   ACTIVE: "Ativa",
@@ -83,6 +85,7 @@ export default function CampaignDetails() {
   const { id } = useParams<{ id: string }>();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (id) {
@@ -168,20 +171,14 @@ export default function CampaignDetails() {
             <div className="h-5 w-px bg-slate-300 dark:bg-slate-700"></div>
             <h1 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Detalhes da Campanha</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <button
-              onClick={() => navigate(`/campaigns/${campaign.id}/edit`)}
-              className="rounded-xl bg-wine-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-wine-700 focus:outline-none focus:ring-2 focus:ring-wine-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
-            >
-              Editar Campanha
-            </button>
-          </div>
+          <UserMenu />
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-6">
-        <div className="space-y-6">
+        <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+          <SideMenu />
+          <div className="space-y-6">
           {/* Card: Informações básicas */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <div className="mb-4 flex items-start justify-between">
@@ -415,7 +412,7 @@ export default function CampaignDetails() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(JSON.stringify(campaign, null, 2));
-                  alert("Payload copiado!");
+                  showToast("success", "Payload copiado!");
                 }}
                 className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
@@ -425,6 +422,7 @@ export default function CampaignDetails() {
             <pre className="max-h-96 overflow-auto rounded-xl bg-slate-900 p-4 text-xs leading-relaxed text-slate-100">
               {JSON.stringify(campaign, null, 2)}
             </pre>
+          </div>
           </div>
         </div>
       </main>
