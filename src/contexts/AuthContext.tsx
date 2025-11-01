@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let capturedToken: string | null = null;
 
       window.fetch = async function(...args) {
-        const [url, options] = args;
+        const [, options] = args;
 
         // Captura o header se estiver presente
         if (options?.headers) {

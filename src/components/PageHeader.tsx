@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import prismLogo from "../assets/prism-logo.png";
 import UserMenu from "./UserMenu";
